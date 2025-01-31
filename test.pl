@@ -1,5 +1,6 @@
 % Fichier pc_problems.pl
 % Base de connaissances pour diagnostiquer les problèmes des PC
+:- pce_image_directory('./images').
 
 % Définir les problèmes possibles
 probleme('RAM défectueuse').
@@ -96,3 +97,7 @@ reinitialiser :-
 % Exemple d'utilisation
 % Pour exécuter le diagnostic, utilisez la commande suivante dans l'interpréteur Prolog :
 % ?- diagnostiquer.
+
+% Base de données pour associer une question à une image
+image_pour_question('PC ne démarre pas', pc_ne_demarre_pas).
+

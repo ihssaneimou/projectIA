@@ -2,25 +2,36 @@
 :- use_module(library(pce)).
 :- use_module(library(pce_style_item)).
 :- encoding('utf8').
+:- pce_image_directory('./images').
 :- dynamic symptome/1.
 :- dynamic yes/1, no/1.
 :- discontiguous symptome/1.
 
+resource(inter, image, image('diag.jpeg')).
+resource(pc_ne_demarre_pas, image, image('pc_ne_demarre_pas.jpeg')).
+resource(default_image, image, image('default_image.jpeg')).
 % Fonction pour afficher une image (placeholder)
-affiche_image(Affichage) :- 
-    new(Figure, figure),
-    send(Figure, status, 1),
-    send(Affichage, display, Figure, point(100, 80)).
+affiche_image(Affichage, Image) :- new(Figure, figure),
+                                   new(Bitmap, bitmap(resource(Image),@on)),
+                                   send(Bitmap, name, 1),
+                                   send(Figure, display, Bitmap),
+                                   send(Figure, status, 1),
+                                   send(Affichage, display,Figure,point(100,80)).
 
-nouveau_image(Fenetre) :- 
-    new(Figure, figure),
-    send(Figure, status, 1),
-    send(Fenetre, display, Figure, point(0, 0)).
+nouveau_image(Fenetre, Image) :- new(Figure, figure),
+                                 new(Bitmap, bitmap(resource(Image),@on)),
+                                 send(Bitmap, name, 1),
+                                 send(Figure, display, Bitmap),
+                                 send(Figure, status, 1),
+                                 send(Fenetre, display,Figure,point(0,0)).
 
-imagen_qst(Fenetre) :- 
-    new(Figure, figure),
-    send(Figure, status, 1),
-    send(Fenetre, display, Figure, point(500, 60)).
+ imagen_qst(Fenetre, Image) :- 
+                                new(Figure, figure),  % Crée une nouvelle figure
+                                 new(Bitmap, bitmap(resource(Image), @on)),  % Charge l'image spécifiée
+                                    send(Bitmap, name, 1),  % Attribue un nom à l'image
+                                    send(Figure, display, Bitmap),  % Affiche l'image dans la figure
+                                    send(Figure, status, 1),  % Définit le statut de la figure
+                                    send(Fenetre, display, Figure, point(500, 60)).  % Place la figure dans la fenêtre à la position spécifiée
 
 % Pose les questions de manière séquentielle
 poser_questions :- 
@@ -45,21 +56,41 @@ poser_questions :-
 
 % Demander une question et retourner la réponse
 demander(Question, Symptome, Reponse) :- 
-    new(Di, dialog('Questions:')),
-    new(L2, label(texto, 'Répondez aux questions')),
-    new(La, label(prob, Question)),
-    imagen_qst(Di),
-    new(B1, button('OUI', message(Di, return, oui))),
-    new(B2, button('NON', message(Di, return, non))),
-    send(Di, append(L2)),
-    send(Di, append(La)),
-    send(Di, append(B1)),
-    send(Di, append(B2)),
-    send(Di, default_button, 'OUI'),
-    send(Di, open_centered),
-    get(Di, confirm, Reponse),
-    free(Di),
-    (Reponse == oui -> assert(yes(Symptome)) ; assert(no(Symptome))).
+    % Cherche l'image associée à la question
+    (   image_pour_question(Symptome, Image) -> 
+        % Afficher l'image si elle existe
+        new(Di, dialog('Questions:')),
+        new(L2, label(texto, 'Répondez aux questions')),
+        new(La, label(prob, Question)),
+        imagen_qst(Di, Image),  % Affichage de l'image spécifique
+        new(B1, button('OUI', message(Di, return, oui))),
+        new(B2, button('NON', message(Di, return, non))),
+        send(Di, append(L2)),
+        send(Di, append(La)),
+        send(Di, append(B1)),
+        send(Di, append(B2)),
+        send(Di, default_button, 'OUI'),
+        send(Di, open_centered),
+        get(Di, confirm, Reponse),
+        free(Di),
+        (Reponse == oui -> assert(yes(Symptome)) ; assert(no(Symptome)))
+    ;   % Si aucune image n'est associée, afficher une image par défaut
+        new(Di, dialog('Questions:')),
+        new(L2, label(texto, 'Répondez aux questions')),
+        new(La, label(prob, Question)),
+        imagen_qst(Di,default_image),  % Image par défaut si pas d'image spécifique
+        new(B1, button('OUI', message(Di, return, oui))),
+        new(B2, button('NON', message(Di, return, non))),
+        send(Di, append(L2)),
+        send(Di, append(La)),
+        send(Di, append(B1)),
+        send(Di, append(B2)),
+        send(Di, default_button, 'OUI'),
+        send(Di, open_centered),
+        get(Di, confirm, Reponse),
+        free(Di),
+        (Reponse == oui -> assert(yes(Symptome)) ; assert(no(Symptome)))
+    ).
 
 % Diagnostique basé sur les symptômes
 hypothese('RAM défectueuse') :- 
@@ -96,14 +127,14 @@ interface_principal :-
     new(@main, dialog('Diagnostic PC')),
     new(@quitter, button('QUITTER', message(@main, destroy))),
     new(@debut, button('COMMENCER LE DIAGNOSTIC', and(message(@prolog, poser_questions), message(@main, destroy)))),
-    nouveau_image(@main),
+    nouveau_image(@main, inter),
     send(@main, append(@debut)),
     send(@main, append(@quitter)),
     send(@main, open_centered).
 
 creer_interface :- 
     new(@interface, dialog('Diagnostic PC')),
-    affiche_image(@interface),
+    affiche_image(@interface, inter),
     new(BoutonComencer, button('COMMENCER', and(message(@prolog, interface_principal), message(@interface, destroy)))),
     new(BoutonQuitter, button('QUITTER', message(@interface, destroy))),
     send(@interface, append(BoutonComencer)),
