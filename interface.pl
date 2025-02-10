@@ -42,44 +42,56 @@ affiche_image(Affichage, Image) :-
 
 % Pose les questions de manière séquentielle en fonction des réponses précédentes
 poser_questions :-
-    symptome(Symptome),
+    findall(Symptome, (symptome(Symptome)), Symptomes),
+    filtrer_symptomes(Symptomes, SymptomesFiltres),
+    (   SymptomesFiltres = [] ->
+        write('Aucune question restante.'), nl
+    ;   member(Symptome, SymptomesFiltres),
+        demander(Symptome),
+        poser_questions
+    ).
+
+% Filtrer les symptômes en fonction des réponses précédentes
+filtrer_symptomes([], []).
+filtrer_symptomes([Symptome|Rest], [Symptome|Filtres]) :-
     \+ yes(Symptome),
     \+ no(Symptome),
-    demander(Symptome),
-    fail.
-poser_questions.
+    filtrer_symptomes(Rest, Filtres).
+filtrer_symptomes([_|Rest], Filtres) :-
+    filtrer_symptomes(Rest, Filtres).
 
+% Demander une question
 % Demander une question
 demander(Symptome) :-
     (   image_pour_question(Symptome, Image) ->
         new(Di, dialog('Question')),
-        send(Di, size, size(600, 700)), % Taille de la boîte de dialogue
+        send(Di, size, size(600, 1000)), % Taille de la boîte de dialogue
 
         % Créer un gestionnaire de disposition vertical
-        new(VBox, dialog_group(vertical)),  % Utilisation de dialog_group/1 pour une boîte verticale
+        new(VBox, dialog_group(symptome)),  % Utilisation de dialog_group/1 pour une boîte verticale
 
-        % Ajouter le texte (question) en haut
+        % Ajouter l'image en haut
+        affiche_image(VBox, Image),
+
+        % Ajouter un espace entre l'image et la question
+        send(VBox, gap, size(0, 20)), % Espace de 20 pixels
+
+        % Ajouter la question au milieu
         new(Text, label(text, Symptome)),
         send(Text, font, font(times, bold, 14)),
         send(VBox, append, Text),
 
-        % Ajouter un espace entre le texte et l'image
+        % Ajouter un espace entre la question et les boutons
         send(VBox, gap, size(0, 20)), % Espace de 20 pixels
 
-        % Ajouter l'image au milieu
-        affiche_image(VBox, Image),
-
-        % Ajouter un espace entre l'image et les boutons
-        send(VBox, gap, size(0, 20)), % Espace de 20 pixels
-
-        % Créer un gestionnaire de disposition horizontal pour les boutons
-        new(HBox, dialog_group(horizontal)),  % Utilisation de dialog_group/1 pour une boîte horizontale
+        % Créer un gestionnaire de disposition problème pour les boutons
+        new(HBox, dialog_group(choisissez)),  % Utilisation de dialog_group/1 pour une boîte problèmee
         new(B1, button('OUI', message(Di, return, oui))),
         new(B2, button('NON', message(Di, return, non))),
         send(HBox, append, B1),
         send(HBox, append, B2),
 
-        % Ajouter la boîte horizontale (boutons) en bas
+        % Ajouter la boîte problèmee (boutons) en bas
         send(VBox, append, HBox),
 
         % Ajouter la boîte verticale à la boîte de dialogue
@@ -97,28 +109,28 @@ demander(Symptome) :-
         % Créer un gestionnaire de disposition vertical
         new(VBox, dialog_group(vertical)),  % Utilisation de dialog_group/1 pour une boîte verticale
 
-        % Ajouter le texte (question) en haut
+        % Ajouter l'image par défaut en haut
+        affiche_image(VBox, default_image),
+
+        % Ajouter un espace entre l'image et la question
+        send(VBox, gap, size(0, 20)), % Espace de 20 pixels
+
+        % Ajouter la question au milieu
         new(Text, label(text, Symptome)),
         send(Text, font, font(times, bold, 14)),
         send(VBox, append, Text),
 
-        % Ajouter un espace entre le texte et l'image par défaut
+        % Ajouter un espace entre la question et les boutons
         send(VBox, gap, size(0, 20)), % Espace de 20 pixels
 
-        % Ajouter l'image par défaut au milieu
-        affiche_image(VBox, default_image),
-
-        % Ajouter un espace entre l'image et les boutons
-        send(VBox, gap, size(0, 20)), % Espace de 20 pixels
-
-        % Créer un gestionnaire de disposition horizontal pour les boutons
-        new(HBox, dialog_group(horizontal)),  % Utilisation de dialog_group/1 pour une boîte horizontale
+        % Créer un gestionnaire de disposition problème pour les boutons
+        new(HBox, dialog_group(problème)),  % Utilisation de dialog_group/1 pour une boîte problèmee
         new(B1, button('OUI', message(Di, return, oui))),
         new(B2, button('NON', message(Di, return, non))),
         send(HBox, append, B1),
         send(HBox, append, B2),
 
-        % Ajouter la boîte horizontale (boutons) en bas
+        % Ajouter la boîte problèmee (boutons) en bas
         send(VBox, append, HBox),
 
         % Ajouter la boîte verticale à la boîte de dialogue
