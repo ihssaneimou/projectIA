@@ -69,7 +69,10 @@ poser_questions_dynamique :-
 
 % Vérifie si un diagnostic est possible avec les réponses actuelles
 diagnostic_possible :-
-    diagnostic(_),
+    symptomes_probleme(_, Symptomes), % On ignore la variable Probleme car elle n'est pas utilisée
+    findall(Symptome, (member(Symptome, Symptomes), (yes(Symptome) ; maybe(Symptome))), SymptomesConfirmes),
+    length(SymptomesConfirmes, N),
+    N > 0,
     log('Diagnostic possible avec les réponses actuelles.'),
     !.
 
@@ -78,7 +81,6 @@ filtrer_symptomes([], []).
 filtrer_symptomes([Symptome|Rest], [Symptome|Filtres]) :-
     \+ yes(Symptome),
     \+ no(Symptome),
-    \+ maybe(Symptome),
     filtrer_symptomes(Rest, Filtres).
 filtrer_symptomes([_|Rest], Filtres) :-
     filtrer_symptomes(Rest, Filtres).
@@ -105,8 +107,8 @@ demander_avec_incertitude(Symptome) :-
     free(Di),
     (   Reponse == oui -> assert(yes(Symptome))
     ;   Reponse == non -> assert(no(Symptome))
-    ;   Reponse == peut_etre -> assert(maybe(Symptome))
-    ;   Reponse == je_ne_sais_pas -> true
+    ;   Reponse == peut_etre -> assert(maybe(Symptome)) % Gestion de "peut-être"
+    ;   Reponse == je_ne_sais_pas -> true % Ignorer "je ne sais pas"
     ).
 
 % Retracter la dernière réponse

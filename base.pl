@@ -64,13 +64,13 @@ symptomes_probleme('Problème de pilote de carte son', ['Le son est déformé ou
 symptomes_probleme('Problème de serveur de messagerie', ['Les fenêtres se ferment sans raison', 'Le PC ne peut pas se connecter à un réseau Wi-Fi']).
 symptomes_probleme('Problème de mise à jour du système d\'exploitation', ['Des fenêtres de mise à jour apparaissent constamment', 'L\'ordinateur surchauffe après une utilisation prolongée']).
 
-% Calculer la probabilité d'un problème
+% Calculer la probabilité d'un problème en tenant compte des réponses "peut-être"
 probabilite_probleme(Probleme, Probabilite) :-
     symptomes_probleme(Probleme, Symptomes),
     length(Symptomes, TotalSymptomes),
-    findall(Symptome, (member(Symptome, Symptomes), yes(Symptome)), SymptomesConfirmes),
-    length(SymptomesConfirmes, SymptomesOui),
-    Probabilite is (SymptomesOui / TotalSymptomes) * 100.
+    findall(Poids, (member(Symptome, Symptomes), (yes(Symptome) -> Poids = 1 ; (maybe(Symptome) -> Poids = 0.5 ; Poids = 0))), PoidsSymptomes),
+    sum_list(PoidsSymptomes, SommePoids),
+    Probabilite is (SommePoids / TotalSymptomes) * 100.
 
 % Règles pour diagnostiquer les problèmes
 diagnostic('Problème de compatibilité matérielle') :-
