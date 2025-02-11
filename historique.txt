@@ -11,3 +11,4 @@ Diagnostic : Problème de lecteur de CD/DVD
 Diagnostic : Problème de lecteur de CD/DVD
 Diagnostic : Problème de lecteur de CD/DVD
 Diagnostic : Problème de lecteur de CD/DVD
+Diagnostic : Problème de compatibilité matérielle
