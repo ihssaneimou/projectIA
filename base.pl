@@ -1,6 +1,6 @@
 % Fichier base.pl
 % Base de connaissances pour diagnostiquer les problèmes des PC
-:- dynamic probleme/1, symptome/1, diagnostic/1, a_symptome/1, demander_symptomes/0, diagnostiquer/0, reinitialiser/0, image_pour_question/2.
+:- dynamic probleme/1, symptome/1, diagnostic/1, a_symptome/1, demander_symptomes/0, diagnostiquer/0, reinitialiser/0, image_pour_question/2, explication/2, solution/2.
 
 % Définir les problèmes possibles
 probleme('Problème de compatibilité matérielle').
@@ -124,6 +124,54 @@ diagnostic('Problème de mise à jour du système d\'exploitation') :-
 diagnostic('Aucun problème détecté') :-
     \+ symptome(_).
 
+% Explications pour chaque problème
+explication('Problème de compatibilité matérielle', 'Le matériel installé n\'est pas compatible avec le système d\'exploitation ou les autres composants.').
+explication('Problème de pilote graphique', 'Le pilote graphique est obsolète ou corrompu, ce qui empêche l\'affichage correct.').
+explication('Problème de cache du navigateur', 'Le cache du navigateur est saturé, ce qui provoque des fermetures intempestives.').
+explication('Problème de gestion de la batterie', 'La batterie est défectueuse ou mal gérée par le système.').
+explication('Problème de lecteur de CD/DVD', 'Le lecteur de CD/DVD n\'est pas détecté par le système.').
+explication('Problème de mémoire cache', 'La mémoire cache est corrompue, ce qui provoque des erreurs de fichiers.').
+explication('Problème de processus en arrière-plan', 'Des processus en arrière-plan consomment trop de ressources.').
+explication('Problème de périphérique Bluetooth', 'Le périphérique Bluetooth ne fonctionne pas correctement.').
+explication('Problème de connectivité réseau sans fil', 'La connexion Wi-Fi est instable ou lente.').
+explication('Problème d\'initialisation du disque dur', 'Le disque dur ne parvient pas à s\'initialiser correctement.').
+explication('Problème de stockage saturé', 'Le disque dur est presque plein, ce qui ralentit le système.').
+explication('Problème de partition de disque', 'La partition du disque dur est corrompue.').
+explication('Problème de synchronisation de fichiers', 'La synchronisation des fichiers est interrompue.').
+explication('Problème d\'antivirus mal configuré', 'L\'antivirus est mal configuré et ralentit le système.').
+explication('Problème de disque dur SSD', 'Le disque SSD est défectueux ou mal configuré.').
+explication('Problème de serveur DNS', 'Le serveur DNS ne répond pas correctement.').
+explication('Problème de pilote de carte son', 'Le pilote de la carte son est obsolète ou corrompu.').
+explication('Problème de serveur de messagerie', 'Le serveur de messagerie ne fonctionne pas correctement.').
+explication('Problème de mise à jour du système d\'exploitation', 'Le système d\'exploitation rencontre des problèmes lors des mises à jour.').
+
+% Solutions pour chaque problème
+solution('Problème de compatibilité matérielle', 'Vérifiez la compatibilité du matériel et mettez à jour les pilotes.').
+solution('Problème de pilote graphique', 'Mettez à jour ou réinstallez le pilote graphique.').
+solution('Problème de cache du navigateur', 'Videz le cache du navigateur.').
+solution('Problème de gestion de la batterie', 'Remplacez la batterie ou recalibrez-la.').
+solution('Problème de lecteur de CD/DVD', 'Vérifiez les connexions et réinstallez les pilotes.').
+solution('Problème de mémoire cache', 'Réinitialisez la mémoire cache.').
+solution('Problème de processus en arrière-plan', 'Identifiez et désactivez les processus inutiles.').
+solution('Problème de périphérique Bluetooth', 'Réinstallez les pilotes Bluetooth.').
+solution('Problème de connectivité réseau sans fil', 'Redémarrez le routeur ou réinstallez les pilotes Wi-Fi.').
+solution('Problème d\'initialisation du disque dur', 'Vérifiez les connexions et réinstallez les pilotes.').
+solution('Problème de stockage saturé', 'Libérez de l\'espace sur le disque dur.').
+solution('Problème de partition de disque', 'Réparer la partition avec un outil de diagnostic.').
+solution('Problème de synchronisation de fichiers', 'Vérifiez les paramètres de synchronisation.').
+solution('Problème d\'antivirus mal configuré', 'Reconfigurez l\'antivirus ou changez de logiciel.').
+solution('Problème de disque dur SSD', 'Vérifiez les connexions et mettez à jour les pilotes.').
+solution('Problème de serveur DNS', 'Changez de serveur DNS ou redémarrez le routeur.').
+solution('Problème de pilote de carte son', 'Mettez à jour ou réinstallez le pilote de la carte son.').
+solution('Problème de serveur de messagerie', 'Vérifiez les paramètres du serveur de messagerie.').
+solution('Problème de mise à jour du système d\'exploitation', 'Redémarrez le système et réessayez la mise à jour.').
+
+% Règle pour sauvegarder le diagnostic dans un fichier
+sauvegarder_diagnostic(Probleme) :-
+    open('historique.txt', append, Stream),
+    write(Stream, 'Diagnostic : '), write(Stream, Probleme), nl(Stream),
+    close(Stream).
+
 % Règle pour vérifier si un symptôme est présent
 a_symptome(Symptome) :-
     write('Avez-vous ce symptôme : '), write(Symptome), write(' ? (oui/non)'), nl,
@@ -141,7 +189,12 @@ demander_symptomes.
 diagnostiquer :-
     demander_symptomes,
     diagnostic(Probleme),
-    write('Le problème détecté est : '), write(Probleme), nl.
+    write('Le problème détecté est : '), write(Probleme), nl,
+    explication(Probleme, Explication),
+    write('Explication : '), write(Explication), nl,
+    solution(Probleme, Solution),
+    write('Solution : '), write(Solution), nl,
+    sauvegarder_diagnostic(Probleme).
 
 % Règle pour réinitialiser les symptômes
 reinitialiser :-

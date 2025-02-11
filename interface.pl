@@ -60,87 +60,70 @@ filtrer_symptomes([Symptome|Rest], [Symptome|Filtres]) :-
 filtrer_symptomes([_|Rest], Filtres) :-
     filtrer_symptomes(Rest, Filtres).
 
-% Demander une question
-% Demander une question
+% Demander une question avec possibilité de revenir en arrière
 demander(Symptome) :-
     (   image_pour_question(Symptome, Image) ->
         new(Di, dialog('Question')),
-        send(Di, size, size(600, 1000)), % Taille de la boîte de dialogue
+        send(Di, size, size(600, 700)), % Taille de la boîte de dialogue
 
-        % Créer un gestionnaire de disposition vertical
-        new(VBox, dialog_group(symptome)),  % Utilisation de dialog_group/1 pour une boîte verticale
+        % Ajouter l'image
+        affiche_image(Di, Image),
 
-        % Ajouter l'image en haut
-        affiche_image(VBox, Image),
-
-        % Ajouter un espace entre l'image et la question
-        send(VBox, gap, size(0, 20)), % Espace de 20 pixels
-
-        % Ajouter la question au milieu
+        % Ajouter la question
         new(Text, label(text, Symptome)),
         send(Text, font, font(times, bold, 14)),
-        send(VBox, append, Text),
+        send(Di, append, Text),
 
-        % Ajouter un espace entre la question et les boutons
-        send(VBox, gap, size(0, 20)), % Espace de 20 pixels
-
-        % Créer un gestionnaire de disposition problème pour les boutons
-        new(HBox, dialog_group(choisissez)),  % Utilisation de dialog_group/1 pour une boîte problèmee
+        % Ajouter les boutons OUI, NON et RETOUR
         new(B1, button('OUI', message(Di, return, oui))),
         new(B2, button('NON', message(Di, return, non))),
-        send(HBox, append, B1),
-        send(HBox, append, B2),
-
-        % Ajouter la boîte problèmee (boutons) en bas
-        send(VBox, append, HBox),
-
-        % Ajouter la boîte verticale à la boîte de dialogue
-        send(Di, append, VBox),
+        new(B3, button('RETOUR', message(Di, return, retour))),
+        send(Di, append, B1),
+        send(Di, append, B2),
+        send(Di, append, B3),
 
         % Ouvrir la boîte de dialogue
         send(Di, open_centered),
         get(Di, confirm, Reponse),
         free(Di),
-        (Reponse == oui -> assert(yes(Symptome)) ; assert(no(Symptome)))
+        (   Reponse == oui -> assert(yes(Symptome))
+        ;   Reponse == non -> assert(no(Symptome))
+        ;   Reponse == retour -> retract_last_response
+        )
     ;   % Si aucune image n'est associée, afficher une image par défaut
         new(Di, dialog('Question')),
         send(Di, size, size(600, 700)),
 
-        % Créer un gestionnaire de disposition vertical
-        new(VBox, dialog_group(vertical)),  % Utilisation de dialog_group/1 pour une boîte verticale
+        % Ajouter l'image par défaut
+        affiche_image(Di, default_image),
 
-        % Ajouter l'image par défaut en haut
-        affiche_image(VBox, default_image),
-
-        % Ajouter un espace entre l'image et la question
-        send(VBox, gap, size(0, 20)), % Espace de 20 pixels
-
-        % Ajouter la question au milieu
+        % Ajouter la question
         new(Text, label(text, Symptome)),
         send(Text, font, font(times, bold, 14)),
-        send(VBox, append, Text),
+        send(Di, append, Text),
 
-        % Ajouter un espace entre la question et les boutons
-        send(VBox, gap, size(0, 20)), % Espace de 20 pixels
-
-        % Créer un gestionnaire de disposition problème pour les boutons
-        new(HBox, dialog_group(problème)),  % Utilisation de dialog_group/1 pour une boîte problèmee
+        % Ajouter les boutons OUI, NON et RETOUR
         new(B1, button('OUI', message(Di, return, oui))),
         new(B2, button('NON', message(Di, return, non))),
-        send(HBox, append, B1),
-        send(HBox, append, B2),
-
-        % Ajouter la boîte problèmee (boutons) en bas
-        send(VBox, append, HBox),
-
-        % Ajouter la boîte verticale à la boîte de dialogue
-        send(Di, append, VBox),
+        new(B3, button('RETOUR', message(Di, return, retour))),
+        send(Di, append, B1),
+        send(Di, append, B2),
+        send(Di, append, B3),
 
         % Ouvrir la boîte de dialogue
         send(Di, open_centered),
         get(Di, confirm, Reponse),
         free(Di),
-        (Reponse == oui -> assert(yes(Symptome)) ; assert(no(Symptome)))
+        (   Reponse == oui -> assert(yes(Symptome))
+        ;   Reponse == non -> assert(no(Symptome))
+        ;   Reponse == retour -> retract_last_response
+        )
+    ).
+
+% Retracter la dernière réponse
+retract_last_response :-
+    (   retract(yes(Symptome)) -> true
+    ;   retract(no(Symptome))
     ).
 
 % Commencer le diagnostic
@@ -161,14 +144,32 @@ diagnostiquer :-
     diagnostic(Probleme), % Trouver le problème basé sur les symptômes
     afficher_diagnostic(Probleme). % Afficher le diagnostic
 
-% Afficher le diagnostic
+% Afficher le diagnostic avec explication et solution
 afficher_diagnostic(Diagnostic) :-
     new(DiagWindow, dialog('Résultat du diagnostic')), % Créer une nouvelle fenêtre de dialogue
-    send(DiagWindow, size, size(400, 200)), % Définir la taille de la fenêtre
+    send(DiagWindow, size, size(400, 300)), % Définir la taille de la fenêtre
     new(Text, label(text, Diagnostic)), % Créer un label avec le diagnostic
     send(Text, font, font(times, bold, 14)), % Définir la police du texte
     send(DiagWindow, append, Text), % Ajouter le texte à la fenêtre
-    send(DiagWindow, open_centered). % Ouvrir la fenêtre au centre de l'écran
+
+    % Ajouter l'explication
+    explication(Diagnostic, Explication),
+    new(TextExplication, label(text, Explication)),
+    send(TextExplication, font, font(times, normal, 12)),
+    send(DiagWindow, append, TextExplication),
+
+    % Ajouter la solution
+    solution(Diagnostic, Solution),
+    new(TextSolution, label(text, Solution)),
+    send(TextSolution, font, font(times, normal, 12)),
+    send(DiagWindow, append, TextSolution),
+
+    % Ajouter un bouton pour sauvegarder le diagnostic
+    new(BoutonSauvegarder, button('Sauvegarder', message(@prolog, sauvegarder_diagnostic, Diagnostic))),
+    send(DiagWindow, append, BoutonSauvegarder),
+
+    % Ouvrir la fenêtre au centre de l'écran
+    send(DiagWindow, open_centered).
 
 % Interface principale
 interface_principal :-
