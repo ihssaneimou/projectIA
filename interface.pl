@@ -7,6 +7,8 @@
 :- dynamic yes/1, no/1.
 :- discontiguous symptome/1.
 :- discontiguous diagnostiquer/0.
+:- dynamic poser_questions/0.
+:- discontiguous diagnostic_possible/0.
 
 % Ressources images
 resource(inter, image, image('diag.jpeg')).
@@ -40,16 +42,25 @@ affiche_image(Affichage, Image) :-
     send(Bitmap, size, size(500, 500)), % Redimensionner l'image à 500x500 pixels
     send(Affichage, display, Bitmap, point(20, 50)).
 
-% Pose les questions de manière séquentielle en fonction des réponses précédentes
+% Debugging helper
+log(Message) :- write('DEBUG: '), write(Message), nl.
+
+% Règle pour poser les questions via l'interface graphique
 poser_questions :-
-    findall(Symptome, (symptome(Symptome)), Symptomes),
+    findall(Symptome, symptome(Symptome), Symptomes),
     filtrer_symptomes(Symptomes, SymptomesFiltres),
     (   SymptomesFiltres = [] ->
-        write('Aucune question restante.'), nl
+        diagnostiquer
     ;   member(Symptome, SymptomesFiltres),
         demander(Symptome),
-        poser_questions
+        (diagnostic_possible -> diagnostiquer ; poser_questions)
     ).
+
+% Vérifie si un diagnostic est possible avec les réponses actuelles
+diagnostic_possible :-
+    diagnostic(_),
+    log('Diagnostic possible avec les réponses actuelles.'),
+    !.
 
 % Filtrer les symptômes en fonction des réponses précédentes
 filtrer_symptomes([], []).
@@ -62,77 +73,39 @@ filtrer_symptomes([_|Rest], Filtres) :-
 
 % Demander une question avec possibilité de revenir en arrière
 demander(Symptome) :-
-    (   image_pour_question(Symptome, Image) ->
-        new(Di, dialog('Question')),
-        send(Di, size, size(600, 700)), % Taille de la boîte de dialogue
-
-        % Ajouter l'image
-        affiche_image(Di, Image),
-
-        % Ajouter la question
-        new(Text, label(text, Symptome)),
-        send(Text, font, font(times, bold, 14)),
-        send(Di, append, Text),
-
-        % Ajouter les boutons OUI, NON et RETOUR
-        new(B1, button('OUI', message(Di, return, oui))),
-        new(B2, button('NON', message(Di, return, non))),
-        new(B3, button('RETOUR', message(Di, return, retour))),
-        send(Di, append, B1),
-        send(Di, append, B2),
-        send(Di, append, B3),
-
-        % Ouvrir la boîte de dialogue
-        send(Di, open_centered),
-        get(Di, confirm, Reponse),
-        free(Di),
-        (   Reponse == oui -> assert(yes(Symptome))
-        ;   Reponse == non -> assert(no(Symptome))
-        ;   Reponse == retour -> retract_last_response
-        )
-    ;   % Si aucune image n'est associée, afficher une image par défaut
-        new(Di, dialog('Question')),
-        send(Di, size, size(600, 700)),
-
-        % Ajouter l'image par défaut
-        affiche_image(Di, default_image),
-
-        % Ajouter la question
-        new(Text, label(text, Symptome)),
-        send(Text, font, font(times, bold, 14)),
-        send(Di, append, Text),
-
-        % Ajouter les boutons OUI, NON et RETOUR
-        new(B1, button('OUI', message(Di, return, oui))),
-        new(B2, button('NON', message(Di, return, non))),
-        new(B3, button('RETOUR', message(Di, return, retour))),
-        send(Di, append, B1),
-        send(Di, append, B2),
-        send(Di, append, B3),
-
-        % Ouvrir la boîte de dialogue
-        send(Di, open_centered),
-        get(Di, confirm, Reponse),
-        free(Di),
-        (   Reponse == oui -> assert(yes(Symptome))
-        ;   Reponse == non -> assert(no(Symptome))
-        ;   Reponse == retour -> retract_last_response
-        )
+    (   image_pour_question(Symptome, Image) -> ImageToUse = Image ; ImageToUse = default_image),
+    new(Di, dialog('Question')),
+    send(Di, size, size(600, 700)),
+    affiche_image(Di, ImageToUse),
+    new(Text, label(text, Symptome)),
+    send(Text, font, font(times, bold, 14)),
+    send(Di, append, Text),
+    new(B1, button('OUI', message(Di, return, oui))),
+    new(B2, button('NON', message(Di, return, non))),
+    new(B3, button('RETOUR', message(Di, return, retour))),
+    send(Di, append, B1),
+    send(Di, append, B2),
+    send(Di, append, B3),
+    send(Di, open_centered),
+    get(Di, confirm, Reponse),
+    free(Di),
+    (   Reponse == oui -> assert(yes(Symptome))
+    ;   Reponse == non -> assert(no(Symptome))
+    ;   Reponse == retour -> retract_last_response
     ).
 
 % Retracter la dernière réponse
 retract_last_response :-
-    (   retract(yes(Symptome)) -> true
-    ;   retract(no(Symptome))
+    (   retract(yes(_)) -> true
+    ;   retract(no(_))
     ).
 
-% Commencer le diagnostic
+% Start the diagnostic process
 commencer_diagnostic :-
     reinitialiser_reponses,
-    write('Début du diagnostic'), nl,
+    log('Starting diagnostic process...'),
     poser_questions,
-    diagnostiquer,
-    write('Fin du diagnostic'), nl.
+    log('Diagnostic process completed.').
 
 % Réinitialiser toutes les réponses
 reinitialiser_reponses :-
@@ -141,34 +114,26 @@ reinitialiser_reponses :-
 
 % Diagnostique basé sur les symptômes
 diagnostiquer :-
-    diagnostic(Probleme), % Trouver le problème basé sur les symptômes
-    afficher_diagnostic(Probleme). % Afficher le diagnostic
+    diagnostic(Probleme),
+    afficher_diagnostic(Probleme).
 
 % Afficher le diagnostic avec explication et solution
 afficher_diagnostic(Diagnostic) :-
-    new(DiagWindow, dialog('Résultat du diagnostic')), % Créer une nouvelle fenêtre de dialogue
-    send(DiagWindow, size, size(400, 300)), % Définir la taille de la fenêtre
-    new(Text, label(text, Diagnostic)), % Créer un label avec le diagnostic
-    send(Text, font, font(times, bold, 14)), % Définir la police du texte
-    send(DiagWindow, append, Text), % Ajouter le texte à la fenêtre
-
-    % Ajouter l'explication
+    new(DiagWindow, dialog('Résultat du diagnostic')),
+    send(DiagWindow, size, size(400, 300)),
+    new(Text, label(text, Diagnostic)),
+    send(Text, font, font(times, bold, 14)),
+    send(DiagWindow, append, Text),
     explication(Diagnostic, Explication),
     new(TextExplication, label(text, Explication)),
     send(TextExplication, font, font(times, normal, 12)),
     send(DiagWindow, append, TextExplication),
-
-    % Ajouter la solution
     solution(Diagnostic, Solution),
     new(TextSolution, label(text, Solution)),
     send(TextSolution, font, font(times, normal, 12)),
     send(DiagWindow, append, TextSolution),
-
-    % Ajouter un bouton pour sauvegarder le diagnostic
     new(BoutonSauvegarder, button('Sauvegarder', message(@prolog, sauvegarder_diagnostic, Diagnostic))),
     send(DiagWindow, append, BoutonSauvegarder),
-
-    % Ouvrir la fenêtre au centre de l'écran
     send(DiagWindow, open_centered).
 
 % Interface principale
@@ -178,8 +143,8 @@ interface_principal :-
     new(@quitter, button('QUITTER', message(@main, destroy))),
     new(@debut, button('COMMENCER LE DIAGNOSTIC', message(@prolog, commencer_diagnostic))),
     affiche_image(@main, inter),
-    send(@main, append, @debut), % Ajouter le bouton "COMMENCER"
-    send(@main, append, @quitter, right), % Ajouter le bouton "QUITTER" à droite
+    send(@main, append, @debut),
+    send(@main, append, @quitter, right),
     send(@main, open_centered),
     write('Interface principale ouverte.'), nl.
 
@@ -190,8 +155,8 @@ creer_interface :-
     affiche_image(@interface, inter),
     new(BoutonComencer, button('COMMENCER', and(message(@prolog, interface_principal), message(@interface, destroy)))),
     new(BoutonQuitter, button('QUITTER', message(@interface, destroy))),
-    send(@interface, append, BoutonComencer), % Ajouter le bouton "COMMENCER"
-    send(@interface, append, BoutonQuitter, right), % Ajouter le bouton "QUITTER" à droite
+    send(@interface, append, BoutonComencer),
+    send(@interface, append, BoutonQuitter, right),
     send(@interface, open_centered).
 
 :- creer_interface.

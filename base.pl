@@ -46,83 +46,83 @@ symptome('Le PC ne peut pas se connecter à un réseau Wi-Fi').
 
 % Règles pour diagnostiquer les problèmes
 diagnostic('Problème de compatibilité matérielle') :-
-    symptome('Le PC ne détecte pas le lecteur de CD/DVD'),
-    symptome('Des applications se bloquent sans raison').
+    yes('Le PC ne détecte pas le lecteur de CD/DVD'),
+    yes('Des applications se bloquent sans raison').
 
 diagnostic('Problème de pilote graphique') :-
-    symptome('Le PC affiche un écran noir après le démarrage'),
-    symptome('Le son est déformé ou coupé').
+    yes('Le PC affiche un écran noir après le démarrage'),
+    yes('Le son est déformé ou coupé').
 
 diagnostic('Problème de cache du navigateur') :-
-    symptome('Des fenêtres se ferment sans raison'),
-    symptome('Les applications se bloquent sans raison').
+    yes('Les fenêtres se ferment sans raison'),
+    yes('Des applications se bloquent sans raison').
 
 diagnostic('Problème de gestion de la batterie') :-
-    symptome('La batterie se décharge trop rapidement'),
-    symptome('Le ventilateur fait un bruit fort').
+    yes('La batterie se décharge trop rapidement'),
+    yes('Le ventilateur fait un bruit fort').
 
 diagnostic('Problème de lecteur de CD/DVD') :-
-    symptome('Le PC ne détecte pas le lecteur de CD/DVD').
+    yes('Le PC ne détecte pas le lecteur de CD/DVD').
 
 diagnostic('Problème de mémoire cache') :-
-    symptome('Des fichiers sont corrompus ou manquants'),
-    symptome('Des applications se bloquent sans raison').
+    yes('Des fichiers sont corrompus ou manquants'),
+    yes('Des applications se bloquent sans raison').
 
 diagnostic('Problème de processus en arrière-plan') :-
-    symptome('Le PC est lent au démarrage'),
-    symptome('Des fenêtres se ferment sans raison').
+    yes('Le PC est lent au démarrage'),
+    yes('Les fenêtres se ferment sans raison').
 
 diagnostic('Problème de périphérique Bluetooth') :-
-    symptome('Le lecteur USB ne fonctionne pas'),
-    symptome('L\'interface tactile ne répond pas').
+    yes('Le lecteur USB ne fonctionne pas'),
+    yes('L\'interface tactile ne répond pas').
 
 diagnostic('Problème de connectivité réseau sans fil') :-
-    symptome('Le Wi-Fi est lent ou instable'),
-    symptome('La connexion Internet se coupe fréquemment').
+    yes('Le Wi-Fi est lent ou instable'),
+    yes('La connexion Internet se coupe fréquemment').
 
 diagnostic('Problème d\'initialisation du disque dur') :-
-    symptome('Le disque dur ne répond pas'),
-    symptome('Des fichiers sont corrompus ou manquants').
+    yes('Le disque dur ne répond pas'),
+    yes('Des fichiers sont corrompus ou manquants').
 
 diagnostic('Problème de stockage saturé') :-
-    symptome('Des fichiers sont corrompus ou manquants'),
-    symptome('Le PC est lent au démarrage').
+    yes('Des fichiers sont corrompus ou manquants'),
+    yes('Le PC est lent au démarrage').
 
 diagnostic('Problème de partition de disque') :-
-    symptome('Des fichiers sont corrompus ou manquants'),
-    symptome('Le disque dur ne répond pas').
+    yes('Des fichiers sont corrompus ou manquants'),
+    yes('Le disque dur ne répond pas').
 
 diagnostic('Problème de synchronisation de fichiers') :-
-    symptome('Des fenêtres se ferment sans raison'),
-    symptome('Le PC s\'éteint sans préavis').
+    yes('Les fenêtres se ferment sans raison'),
+    yes('Le PC s\'éteint sans préavis').
 
 diagnostic('Problème d\'antivirus mal configuré') :-
-    symptome('Le PC est lent au démarrage'),
-    symptome('Des applications se bloquent sans raison').
+    yes('Le PC est lent au démarrage'),
+    yes('Des applications se bloquent sans raison').
 
 diagnostic('Problème de disque dur SSD') :-
-    symptome('Des fichiers sont corrompus ou manquants'),
-    symptome('Le PC s\'éteint sans préavis').
+    yes('Des fichiers sont corrompus ou manquants'),
+    yes('Le PC s\'éteint sans préavis').
 
 diagnostic('Problème de serveur DNS') :-
-    symptome('Le Wi-Fi est lent ou instable'),
-    symptome('La connexion Internet se coupe fréquemment').
+    yes('Le Wi-Fi est lent ou instable'),
+    yes('La connexion Internet se coupe fréquemment').
 
 diagnostic('Problème de pilote de carte son') :-
-    symptome('Le son est déformé ou coupé'),
-    symptome('Le PC est lent au démarrage').
+    yes('Le son est déformé ou coupé'),
+    yes('Le PC est lent au démarrage').
 
 diagnostic('Problème de serveur de messagerie') :-
-    symptome('Des fenêtres se ferment sans raison'),
-    symptome('Le PC ne peut pas se connecter à un réseau Wi-Fi').
+    yes('Les fenêtres se ferment sans raison'),
+    yes('Le PC ne peut pas se connecter à un réseau Wi-Fi').
 
 diagnostic('Problème de mise à jour du système d\'exploitation') :-
-    symptome('Des fenêtres de mise à jour apparaissent constamment'),
-    symptome('L\'ordinateur surchauffe après une utilisation prolongée').
+    yes('Des fenêtres de mise à jour apparaissent constamment'),
+    yes('L\'ordinateur surchauffe après une utilisation prolongée').
 
 % Aucun problème détecté
 diagnostic('Aucun problème détecté') :-
-    \+ symptome(_).
+    \+ yes(_).
 
 % Explications pour chaque problème
 explication('Problème de compatibilité matérielle', 'Le matériel installé n\'est pas compatible avec le système d\'exploitation ou les autres composants.').
@@ -172,30 +172,6 @@ sauvegarder_diagnostic(Probleme) :-
     write(Stream, 'Diagnostic : '), write(Stream, Probleme), nl(Stream),
     close(Stream).
 
-% Règle pour vérifier si un symptôme est présent
-a_symptome(Symptome) :-
-    write('Avez-vous ce symptôme : '), write(Symptome), write(' ? (oui/non)'), nl,
-    read(Reponse),
-    (Reponse = oui -> assertz(symptome(Symptome)) ; true).
-
-% Règle pour demander tous les symptômes
-demander_symptomes :-
-    symptome(Symptome),
-    a_symptome(Symptome),
-    fail.
-demander_symptomes.
-
-% Règle pour exécuter le diagnostic
-diagnostiquer :-
-    demander_symptomes,
-    diagnostic(Probleme),
-    write('Le problème détecté est : '), write(Probleme), nl,
-    explication(Probleme, Explication),
-    write('Explication : '), write(Explication), nl,
-    solution(Probleme, Solution),
-    write('Solution : '), write(Solution), nl,
-    sauvegarder_diagnostic(Probleme).
-
 % Règle pour réinitialiser les symptômes
 reinitialiser :-
     retractall(symptome(_)).
@@ -220,6 +196,3 @@ image_pour_question('L\'ordinateur surchauffe après une utilisation prolongée'
 image_pour_question('La connexion Internet se coupe fréquemment', connexion_internet_coupe).
 image_pour_question('L\'interface tactile ne répond pas', ecran_tactile_non_repond).
 image_pour_question('Le PC ne peut pas se connecter à un réseau Wi-Fi', pc_non_connecte_wifi).
-image_pour_question('Problème de compatibilité matérielle', compatibilite_materielle).
-image_pour_question('Problème de pilote graphique', pilote_graphique).
-image_pour_question('Problème de cache du navigateur', cache_navigateur).
