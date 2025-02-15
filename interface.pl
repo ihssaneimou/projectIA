@@ -43,28 +43,20 @@ affiche_image(Affichage, Image) :-
     send(Affichage, display, Bitmap, point(20, 50)).
 
 % Debugging helper
-log(Message) :- write('DEBUG: '), write(Message), nl.
+log(Message, Args) :-
+    format('DEBUG: ', []),
+    format(Message, Args),
+    nl.
 
-% Règle pour prioriser les questions en fonction des réponses précédentes
-prioriser_questions(Symptomes, SymptomesPriorises) :-
-    findall(Symptome, symptome(Symptome), Symptomes),
-    filtrer_symptomes(Symptomes, SymptomesFiltres),
-    (   yes('Le PC ne démarre pas') ->
-        select('Le PC affiche un écran noir après le démarrage', SymptomesFiltres, SymptomesPriorises)
-    ;   yes('Le Wi-Fi est lent ou instable') ->
-        select('La connexion Internet se coupe fréquemment', SymptomesFiltres, SymptomesPriorises)
-    ;   SymptomesPriorises = SymptomesFiltres
-    ).
-
-% Règle pour poser les questions de manière dynamique
+% Règle pour poser les questions de manière dynamique (sans filtrage ni priorisation)
 poser_questions_dynamique :-
-    findall(Symptome, symptome(Symptome), Symptomes),
-    prioriser_questions(Symptomes, SymptomesPriorises),
-    (   SymptomesPriorises = [] ->
+    findall(Symptome, (symptome(Symptome), \+ yes(Symptome), \+ no(Symptome), \+ maybe(Symptome)), SymptomesRestants),
+    log('Symptômes restants : ~w', [SymptomesRestants]), % Utilisation correcte de log/2
+    (   SymptomesRestants = [] ->
         diagnostiquer
-    ;   member(Symptome, SymptomesPriorises),
+    ;   member(Symptome, SymptomesRestants),
         demander_avec_incertitude(Symptome),
-        (diagnostic_possible -> diagnostiquer ; poser_questions_dynamique)
+        poser_questions_dynamique
     ).
 
 % Vérifie si un diagnostic est possible avec les réponses actuelles
@@ -73,17 +65,8 @@ diagnostic_possible :-
     findall(Symptome, (member(Symptome, Symptomes), (yes(Symptome) ; maybe(Symptome))), SymptomesConfirmes),
     length(SymptomesConfirmes, N),
     N > 0,
-    log('Diagnostic possible avec les réponses actuelles.'),
+    log('Diagnostic possible avec les réponses actuelles.', []),
     !.
-
-% Filtrer les symptômes en fonction des réponses précédentes
-filtrer_symptomes([], []).
-filtrer_symptomes([Symptome|Rest], [Symptome|Filtres]) :-
-    \+ yes(Symptome),
-    \+ no(Symptome),
-    filtrer_symptomes(Rest, Filtres).
-filtrer_symptomes([_|Rest], Filtres) :-
-    filtrer_symptomes(Rest, Filtres).
 
 % Demander une question avec possibilité de revenir en arrière
 demander_avec_incertitude(Symptome) :-
@@ -97,18 +80,17 @@ demander_avec_incertitude(Symptome) :-
     new(B1, button('OUI', message(Di, return, oui))),
     new(B2, button('NON', message(Di, return, non))),
     new(B3, button('PEUT-ÊTRE', message(Di, return, peut_etre))),
-    new(B4, button('JE NE SAIS PAS', message(Di, return, je_ne_sais_pas))),
     send(Di, append, B1),
     send(Di, append, B2),
     send(Di, append, B3),
-    send(Di, append, B4),
     send(Di, open_centered),
-    get(Di, confirm, Reponse),
+    log('Boîte de dialogue ouverte. En attente de réponse...', []),
+    get(Di, confirm, Reponse), % Utilisation de get/3 pour récupérer la réponse
+    log('Réponse reçue : ~w', [Reponse]),
     free(Di),
     (   Reponse == oui -> assert(yes(Symptome))
     ;   Reponse == non -> assert(no(Symptome))
-    ;   Reponse == peut_etre -> assert(maybe(Symptome)) % Gestion de "peut-être"
-    ;   Reponse == je_ne_sais_pas -> true % Ignorer "je ne sais pas"
+    ;   Reponse == peut_etre -> assert(maybe(Symptome))
     ).
 
 % Retracter la dernière réponse
@@ -121,9 +103,9 @@ retract_last_response :-
 % Start the diagnostic process
 commencer_diagnostic :-
     reinitialiser_reponses,
-    log('Starting diagnostic process...'),
+    log('Starting diagnostic process...', []),
     poser_questions_dynamique,
-    log('Diagnostic process completed.').
+    log('Diagnostic process completed.', []).
 
 % Réinitialiser toutes les réponses
 reinitialiser_reponses :-
@@ -133,10 +115,14 @@ reinitialiser_reponses :-
 
 % Diagnostique basé sur les symptômes avec probabilités
 diagnostiquer :-
+    log('Début du diagnostic.', []),
     findall(Probleme-Probabilite, (symptomes_probleme(Probleme, _), probabilite_probleme(Probleme, Probabilite), Probabilite > 0), ProblemesProbabilites),
+    log('Problèmes avec probabilités : ~w', [ProblemesProbabilites]),
     (   ProblemesProbabilites = [] ->
+        log('Aucun problème détecté.', []),
         afficher_aucun_probleme
-    ;   afficher_tous_les_problemes(ProblemesProbabilites)
+    ;   log('Affichage des problèmes détectés.', []),
+        afficher_tous_les_problemes(ProblemesProbabilites)
     ).
 
 % Afficher un message si aucun problème n'est détecté

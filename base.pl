@@ -68,9 +68,18 @@ symptomes_probleme('Problème de mise à jour du système d\'exploitation', ['De
 probabilite_probleme(Probleme, Probabilite) :-
     symptomes_probleme(Probleme, Symptomes),
     length(Symptomes, TotalSymptomes),
-    findall(Poids, (member(Symptome, Symptomes), (yes(Symptome) -> Poids = 1 ; (maybe(Symptome) -> Poids = 0.5 ; Poids = 0))), PoidsSymptomes),
+    log('Calcul de la probabilité pour le problème : ~w', [Probleme]),
+    log('Symptômes associés : ~w', [Symptomes]),
+    findall(Poids, 
+            (member(Symptome, Symptomes), 
+             (yes(Symptome) -> Poids = 1 ; 
+              (maybe(Symptome) -> Poids = 0.5 ; 
+              Poids = 0))), 
+            PoidsSymptomes),
     sum_list(PoidsSymptomes, SommePoids),
-    Probabilite is (SommePoids / TotalSymptomes) * 100.
+    Probabilite is (SommePoids / TotalSymptomes) * 100,
+    log('Probabilité calculée : ~w%', [Probabilite]).
+
 
 % Règles pour diagnostiquer les problèmes
 diagnostic('Problème de compatibilité matérielle') :-
