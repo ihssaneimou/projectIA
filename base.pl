@@ -3,11 +3,11 @@
 :- dynamic probleme/1, symptome/1, diagnostic/1, a_symptome/1 , diagnostiquer/0, image_pour_question/2, explication/2, solution/2, symptomes_probleme/2.
 
 % Définir les problèmes possibles
-probleme('Problème de compatibilité matérielle').
+% probleme('Problème de compatibilité matérielle').
 % probleme('Problème de pilote graphique').
-probleme('Problème de cache du navigateur').
+% probleme('Problème de cache du navigateur').
 probleme('Problème de gestion de la batterie').
-probleme('Problème de lecteur de CD/DVD').
+% probleme('Problème de lecteur de CD/DVD').
 probleme('Problème de mémoire cache').
 probleme('Problème de processus en arrière-plan').
 % probleme('Problème de périphérique Bluetooth').
@@ -19,7 +19,7 @@ probleme('Problème de synchronisation de fichiers').
 probleme('Problème d\'antivirus mal configuré').
 probleme('Problème de disque dur SSD').
 probleme('Problème de serveur DNS').
-probleme('Problème de pilote de carte son').
+% probleme('Problème de pilote de carte son').
 probleme('Problème de serveur de messagerie').
 % probleme('Problème de mise à jour du système d\'exploitation').
 
@@ -45,7 +45,7 @@ symptome('La connexion Internet se coupe fréquemment').
 symptome('Le PC ne peut pas se connecter à un réseau Wi-Fi').
 
 % Définir les symptômes associés à chaque problème
-symptomes_probleme('Problème de compatibilité matérielle', ['Le PC ne détecte pas le lecteur de CD/DVD', 'Des applications se bloquent sans raison']).
+% symptomes_probleme('Problème de compatibilité matérielle', ['Le PC ne détecte pas le lecteur de CD/DVD', 'Des applications se bloquent sans raison']).
 % symptomes_probleme('Problème de pilote graphique', ['Le PC affiche un écran noir après le démarrage', 'Le son est déformé ou coupé']).
 symptomes_probleme('Problème de gestion de la batterie', ['La batterie se décharge trop rapidement', 'Le ventilateur fait un bruit fort']).
 % symptomes_probleme('Problème de lecteur de CD/DVD', ['Le PC ne détecte pas le lecteur de CD/DVD']).
@@ -60,7 +60,7 @@ symptomes_probleme('Problème de synchronisation de fichiers', ['Les fenêtres s
 symptomes_probleme('Problème d\'antivirus mal configuré', ['Le PC est lent au démarrage', 'Des applications se bloquent sans raison']).
 symptomes_probleme('Problème de disque dur SSD', ['Des fichiers sont corrompus ou manquants', 'Le PC s\'éteint sans préavis']).
 symptomes_probleme('Problème de serveur DNS', ['Le Wi-Fi est lent ou instable', 'La connexion Internet se coupe fréquemment']).
-symptomes_probleme('Problème de pilote de carte son', ['Le son est déformé ou coupé', 'Le PC est lent au démarrage']).
+% symptomes_probleme('Problème de pilote de carte son', ['Le son est déformé ou coupé', 'Le PC est lent au démarrage']).
 symptomes_probleme('Problème de serveur de messagerie', ['Les fenêtres se ferment sans raison', 'Le PC ne peut pas se connecter à un réseau Wi-Fi']).
 
 % Calculer la probabilité d'un problème en tenant compte des réponses "peut-être"
@@ -81,21 +81,21 @@ probabilite_probleme(Probleme, Probabilite) :-
 
 
 % Règles pour diagnostiquer les problèmes
-diagnostic('Problème de compatibilité matérielle') :-
-    yes('Le PC ne détecte pas le lecteur de CD/DVD'),
-    yes('Des applications se bloquent sans raison').
+% diagnostic('Problème de compatibilité matérielle') :-
+%     yes('Le PC ne détecte pas le lecteur de CD/DVD'),
+%     yes('Des applications se bloquent sans raison').
 
-diagnostic('Problème de pilote graphique') :-
-    yes('Le PC affiche un écran noir après le démarrage'),
-    yes('Le son est déformé ou coupé').
+% diagnostic('Problème de pilote graphique') :-
+%     yes('Le PC affiche un écran noir après le démarrage'),
+%     yes('Le son est déformé ou coupé').
 
 diagnostic('Problème de gestion de la batterie') :-
     yes('La batterie se décharge trop rapidement'),
     yes('Le ventilateur fait un bruit fort'),
     yes('L\'ordinateur surchauffe après une utilisation prolongée').
 
-diagnostic('Problème de lecteur de CD/DVD') :-
-    yes('Le PC ne détecte pas le lecteur de CD/DVD').
+% diagnostic('Problème de lecteur de CD/DVD') :-
+%     yes('Le PC ne détecte pas le lecteur de CD/DVD').
 
 diagnostic('Problème de mémoire cache') :-
     yes('Des fichiers sont corrompus ou manquants'),
@@ -105,9 +105,9 @@ diagnostic('Problème de processus en arrière-plan') :-
     yes('Le PC est lent au démarrage'),
     yes('Les fenêtres se ferment sans raison').
 
-diagnostic('Problème de périphérique Bluetooth') :-
-    yes('Le lecteur USB ne fonctionne pas'),
-    yes('L\'interface tactile ne répond pas').
+% diagnostic('Problème de périphérique Bluetooth') :-
+%     yes('Le lecteur USB ne fonctionne pas'),
+%     yes('L\'interface tactile ne répond pas').
 
 diagnostic('Problème de connectivité réseau sans fil') :-
     yes('Le Wi-Fi est lent ou instable'),
@@ -142,17 +142,17 @@ diagnostic('Problème de serveur DNS') :-
     yes('Le Wi-Fi est lent ou instable'),
     yes('La connexion Internet se coupe fréquemment').
 
-diagnostic('Problème de pilote de carte son') :-
-    yes('Le son est déformé ou coupé'),
-    yes('Le PC est lent au démarrage').
+% diagnostic('Problème de pilote de carte son') :-
+%     yes('Le son est déformé ou coupé'),
+%     yes('Le PC est lent au démarrage').
 
 diagnostic('Problème de serveur de messagerie') :-
     yes('Les fenêtres se ferment sans raison'),
     yes('Le PC ne peut pas se connecter à un réseau Wi-Fi').
 
-diagnostic('Problème de mise à jour du système d\'exploitation') :-
-    yes('Des fenêtres de mise à jour apparaissent constamment'),
-    yes('L\'ordinateur surchauffe après une utilisation prolongée').
+% diagnostic('Problème de mise à jour du système d\'exploitation') :-
+%     yes('Des fenêtres de mise à jour apparaissent constamment'),
+%     yes('L\'ordinateur surchauffe après une utilisation prolongée').
 
 % Aucun problème détecté
 diagnostic('Aucun problème détecté') :-
