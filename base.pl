@@ -1,16 +1,16 @@
 % Fichier base.pl
 % Base de connaissances pour diagnostiquer les problèmes des PC
-:- dynamic probleme/1, symptome/1, diagnostic/1, a_symptome/1, demander_symptomes/0, diagnostiquer/0, reinitialiser/0, image_pour_question/2, explication/2, solution/2, symptomes_probleme/2.
+:- dynamic probleme/1, symptome/1, diagnostic/1, a_symptome/1 , diagnostiquer/0, image_pour_question/2, explication/2, solution/2, symptomes_probleme/2.
 
 % Définir les problèmes possibles
 probleme('Problème de compatibilité matérielle').
-probleme('Problème de pilote graphique').
+% probleme('Problème de pilote graphique').
 probleme('Problème de cache du navigateur').
 probleme('Problème de gestion de la batterie').
 probleme('Problème de lecteur de CD/DVD').
 probleme('Problème de mémoire cache').
 probleme('Problème de processus en arrière-plan').
-probleme('Problème de périphérique Bluetooth').
+% probleme('Problème de périphérique Bluetooth').
 probleme('Problème de connectivité réseau sans fil').
 probleme('Problème d\'initialisation du disque dur').
 probleme('Problème de stockage saturé').
@@ -21,13 +21,13 @@ probleme('Problème de disque dur SSD').
 probleme('Problème de serveur DNS').
 probleme('Problème de pilote de carte son').
 probleme('Problème de serveur de messagerie').
-probleme('Problème de mise à jour du système d\'exploitation').
+% probleme('Problème de mise à jour du système d\'exploitation').
 
 % Définir les symptômes associés aux problèmes
-symptome('PC ne démarre pas').
-symptome('Le PC fait des bips au démarrage').
+% symptome('PC ne démarre pas').
+% symptome('Le PC fait des bips au démarrage').
 symptome('Les fenêtres se ferment sans raison').
-symptome('Le PC ne détecte pas le lecteur de CD/DVD').
+% symptome('Le PC ne détecte pas le lecteur de CD/DVD').
 symptome('La batterie se décharge trop rapidement').
 symptome('Le ventilateur fait un bruit fort').
 symptome('Le Wi-Fi est lent ou instable').
@@ -35,23 +35,23 @@ symptome('Le disque dur ne répond pas').
 symptome('Des fichiers sont corrompus ou manquants').
 symptome('Des applications se bloquent sans raison').
 symptome('Le PC est lent au démarrage').
-symptome('Le son est déformé ou coupé').
+% symptome('Le son est déformé ou coupé').
 symptome('Le PC s\'éteint sans préavis').
-symptome('Le PC affiche un écran noir après le démarrage').
-symptome('Le lecteur USB ne fonctionne pas').
-symptome('L\'ordinateur surchauffe après une utilisation prolongée').
+% symptome('Le PC affiche un écran noir après le démarrage').
+% symptome('Le lecteur USB ne fonctionne pas').
+% symptome('L\'ordinateur surchauffe après une utilisation prolongée').
 symptome('La connexion Internet se coupe fréquemment').
-symptome('L\'interface tactile ne répond pas').
+% symptome('L\'interface tactile ne répond pas').
 symptome('Le PC ne peut pas se connecter à un réseau Wi-Fi').
 
 % Définir les symptômes associés à chaque problème
 symptomes_probleme('Problème de compatibilité matérielle', ['Le PC ne détecte pas le lecteur de CD/DVD', 'Des applications se bloquent sans raison']).
-symptomes_probleme('Problème de pilote graphique', ['Le PC affiche un écran noir après le démarrage', 'Le son est déformé ou coupé']).
-symptomes_probleme('Problème de gestion de la batterie', ['La batterie se décharge trop rapidement', 'Le ventilateur fait un bruit fort', 'L\'ordinateur surchauffe après une utilisation prolongée']).
-symptomes_probleme('Problème de lecteur de CD/DVD', ['Le PC ne détecte pas le lecteur de CD/DVD']).
+% symptomes_probleme('Problème de pilote graphique', ['Le PC affiche un écran noir après le démarrage', 'Le son est déformé ou coupé']).
+symptomes_probleme('Problème de gestion de la batterie', ['La batterie se décharge trop rapidement', 'Le ventilateur fait un bruit fort']).
+% symptomes_probleme('Problème de lecteur de CD/DVD', ['Le PC ne détecte pas le lecteur de CD/DVD']).
 symptomes_probleme('Problème de mémoire cache', ['Des fichiers sont corrompus ou manquants', 'Des applications se bloquent sans raison']).
 symptomes_probleme('Problème de processus en arrière-plan', ['Le PC est lent au démarrage', 'Les fenêtres se ferment sans raison']).
-symptomes_probleme('Problème de périphérique Bluetooth', ['Le lecteur USB ne fonctionne pas', 'L\'interface tactile ne répond pas']).
+% symptomes_probleme('Problème de périphérique Bluetooth', ['Le lecteur USB ne fonctionne pas', 'L\'interface tactile ne répond pas']).
 symptomes_probleme('Problème de connectivité réseau sans fil', ['Le Wi-Fi est lent ou instable', 'La connexion Internet se coupe fréquemment', 'Le PC ne peut pas se connecter à un réseau Wi-Fi']).
 symptomes_probleme('Problème d\'initialisation du disque dur', ['Le disque dur ne répond pas', 'Des fichiers sont corrompus ou manquants']).
 symptomes_probleme('Problème de stockage saturé', ['Des fichiers sont corrompus ou manquants', 'Le PC est lent au démarrage']).
@@ -62,7 +62,6 @@ symptomes_probleme('Problème de disque dur SSD', ['Des fichiers sont corrompus 
 symptomes_probleme('Problème de serveur DNS', ['Le Wi-Fi est lent ou instable', 'La connexion Internet se coupe fréquemment']).
 symptomes_probleme('Problème de pilote de carte son', ['Le son est déformé ou coupé', 'Le PC est lent au démarrage']).
 symptomes_probleme('Problème de serveur de messagerie', ['Les fenêtres se ferment sans raison', 'Le PC ne peut pas se connecter à un réseau Wi-Fi']).
-symptomes_probleme('Problème de mise à jour du système d\'exploitation', ['Des fenêtres de mise à jour apparaissent constamment', 'L\'ordinateur surchauffe après une utilisation prolongée']).
 
 % Calculer la probabilité d'un problème en tenant compte des réponses "peut-être"
 probabilite_probleme(Probleme, Probabilite) :-
@@ -201,18 +200,9 @@ solution('Problème de pilote de carte son', 'Mettez à jour ou réinstallez le 
 solution('Problème de serveur de messagerie', 'Vérifiez les paramètres du serveur de messagerie.').
 solution('Problème de mise à jour du système d\'exploitation', 'Redémarrez le système et réessayez la mise à jour.').
 
-% Règle pour sauvegarder le diagnostic dans un fichier
-sauvegarder_diagnostic(Probleme) :-
-    open('historique.txt', append, Stream),
-    write(Stream, 'Diagnostic : '), write(Stream, Probleme), nl(Stream),
-    close(Stream).
 
-% Règle pour réinitialiser les symptômes
-reinitialiser :-
-    retractall(symptome(_)).
-
-% Base de données pour associer une question à une image
-image_pour_question('PC ne démarre pas', pc_ne_demarre_pas).
+% % Base de données pour associer une question à une image
+% image_pour_question('PC ne démarre pas', pc_ne_demarre_pas).
 image_pour_question('Le PC fait des bips au démarrage', bips_demarrage).
 image_pour_question('Les fenêtres se ferment sans raison', fenetres_fermeture).
 image_pour_question('Le PC ne détecte pas le lecteur de CD/DVD', lecteur_cd_non_detecte).

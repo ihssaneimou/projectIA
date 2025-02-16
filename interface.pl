@@ -7,8 +7,7 @@
 :- dynamic yes/1, no/1, maybe/1.
 :- discontiguous symptome/1.
 :- discontiguous diagnostiquer/0.
-:- dynamic poser_questions/0.
-:- discontiguous diagnostic_possible/0.
+
 
 % Ressources images
 resource(inter, image, image('diag.jpeg')).
@@ -59,14 +58,6 @@ poser_questions_dynamique :-
         poser_questions_dynamique
     ).
 
-% Vérifie si un diagnostic est possible avec les réponses actuelles
-diagnostic_possible :-
-    symptomes_probleme(_, Symptomes), % On ignore la variable Probleme car elle n'est pas utilisée
-    findall(Symptome, (member(Symptome, Symptomes), (yes(Symptome) ; maybe(Symptome))), SymptomesConfirmes),
-    length(SymptomesConfirmes, N),
-    N > 0,
-    log('Diagnostic possible avec les réponses actuelles.', []),
-    !.
 
 % Demander une question avec possibilité de revenir en arrière
 demander_avec_incertitude(Symptome) :-
@@ -93,12 +84,6 @@ demander_avec_incertitude(Symptome) :-
     ;   Reponse == peut_etre -> assert(maybe(Symptome))
     ).
 
-% Retracter la dernière réponse
-retract_last_response :-
-    (   retract(yes(_)) -> true
-    ;   retract(no(_)) -> true
-    ;   retract(maybe(_)) -> true
-    ).
 
 % Start the diagnostic process
 commencer_diagnostic :-
