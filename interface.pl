@@ -1,7 +1,7 @@
 :- include('base.pl').
 :- use_module(library(pce)).
 :- use_module(library(pce_style_item)).
-:- encoding('utf8').
+:- set_prolog_flag(encoding, utf8).
 :- pce_image_directory('./images').
 :- dynamic symptome/1.
 :- dynamic yes/1, no/1, maybe/1.
