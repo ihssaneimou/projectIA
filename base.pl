@@ -1,16 +1,14 @@
 % Fichier base.pl
 % Base de connaissances pour diagnostiquer les problèmes des PC
 :- dynamic probleme/1, symptome/1, diagnostic/1, a_symptome/1 , diagnostiquer/0, image_pour_question/2, explication/2, solution/2, symptomes_probleme/2.
+check_class(Class) :-
+    catch(new(_, Class), _, fail).
 
 % Définir les problèmes possibles
-% probleme('Problème de compatibilité matérielle').
-% probleme('Problème de pilote graphique').
-% probleme('Problème de cache du navigateur').
+
 probleme('Problème de gestion de la batterie').
-% probleme('Problème de lecteur de CD/DVD').
 probleme('Problème de mémoire cache').
 probleme('Problème de processus en arrière-plan').
-% probleme('Problème de périphérique Bluetooth').
 probleme('Problème de connectivité réseau sans fil').
 probleme('Problème d\'initialisation du disque dur').
 probleme('Problème de stockage saturé').
@@ -19,15 +17,11 @@ probleme('Problème de synchronisation de fichiers').
 probleme('Problème d\'antivirus mal configuré').
 probleme('Problème de disque dur SSD').
 probleme('Problème de serveur DNS').
-% probleme('Problème de pilote de carte son').
 probleme('Problème de serveur de messagerie').
-% probleme('Problème de mise à jour du système d\'exploitation').
+
 
 % Définir les symptômes associés aux problèmes
-% symptome('PC ne démarre pas').
-% symptome('Le PC fait des bips au démarrage').
 symptome('Les fenêtres se ferment sans raison').
-% symptome('Le PC ne détecte pas le lecteur de CD/DVD').
 symptome('La batterie se décharge trop rapidement').
 symptome('Le ventilateur fait un bruit fort').
 symptome('Le Wi-Fi est lent ou instable').
@@ -35,23 +29,14 @@ symptome('Le disque dur ne répond pas').
 symptome('Des fichiers sont corrompus ou manquants').
 symptome('Des applications se bloquent sans raison').
 symptome('Le PC est lent au démarrage').
-% symptome('Le son est déformé ou coupé').
 symptome('Le PC s\'éteint sans préavis').
-% symptome('Le PC affiche un écran noir après le démarrage').
-% symptome('Le lecteur USB ne fonctionne pas').
-% symptome('L\'ordinateur surchauffe après une utilisation prolongée').
 symptome('La connexion Internet se coupe fréquemment').
-% symptome('L\'interface tactile ne répond pas').
 symptome('Le PC ne peut pas se connecter à un réseau Wi-Fi').
 
 % Définir les symptômes associés à chaque problème
-% symptomes_probleme('Problème de compatibilité matérielle', ['Le PC ne détecte pas le lecteur de CD/DVD', 'Des applications se bloquent sans raison']).
-% symptomes_probleme('Problème de pilote graphique', ['Le PC affiche un écran noir après le démarrage', 'Le son est déformé ou coupé']).
 symptomes_probleme('Problème de gestion de la batterie', ['La batterie se décharge trop rapidement', 'Le ventilateur fait un bruit fort']).
-% symptomes_probleme('Problème de lecteur de CD/DVD', ['Le PC ne détecte pas le lecteur de CD/DVD']).
 symptomes_probleme('Problème de mémoire cache', ['Des fichiers sont corrompus ou manquants', 'Des applications se bloquent sans raison']).
 symptomes_probleme('Problème de processus en arrière-plan', ['Le PC est lent au démarrage', 'Les fenêtres se ferment sans raison']).
-% symptomes_probleme('Problème de périphérique Bluetooth', ['Le lecteur USB ne fonctionne pas', 'L\'interface tactile ne répond pas']).
 symptomes_probleme('Problème de connectivité réseau sans fil', ['Le Wi-Fi est lent ou instable', 'La connexion Internet se coupe fréquemment', 'Le PC ne peut pas se connecter à un réseau Wi-Fi']).
 symptomes_probleme('Problème d\'initialisation du disque dur', ['Le disque dur ne répond pas', 'Des fichiers sont corrompus ou manquants']).
 symptomes_probleme('Problème de stockage saturé', ['Des fichiers sont corrompus ou manquants', 'Le PC est lent au démarrage']).
@@ -60,7 +45,6 @@ symptomes_probleme('Problème de synchronisation de fichiers', ['Les fenêtres s
 symptomes_probleme('Problème d\'antivirus mal configuré', ['Le PC est lent au démarrage', 'Des applications se bloquent sans raison']).
 symptomes_probleme('Problème de disque dur SSD', ['Des fichiers sont corrompus ou manquants', 'Le PC s\'éteint sans préavis']).
 symptomes_probleme('Problème de serveur DNS', ['Le Wi-Fi est lent ou instable', 'La connexion Internet se coupe fréquemment']).
-% symptomes_probleme('Problème de pilote de carte son', ['Le son est déformé ou coupé', 'Le PC est lent au démarrage']).
 symptomes_probleme('Problème de serveur de messagerie', ['Les fenêtres se ferment sans raison', 'Le PC ne peut pas se connecter à un réseau Wi-Fi']).
 
 % Calculer la probabilité d'un problème en tenant compte des réponses "peut-être"
@@ -79,84 +63,6 @@ probabilite_probleme(Probleme, Probabilite) :-
     Probabilite is (SommePoids / TotalSymptomes) * 100,
     log('Probabilité calculée : ~w%', [Probabilite]).
 
-
-% Règles pour diagnostiquer les problèmes
-% diagnostic('Problème de compatibilité matérielle') :-
-%     yes('Le PC ne détecte pas le lecteur de CD/DVD'),
-%     yes('Des applications se bloquent sans raison').
-
-% diagnostic('Problème de pilote graphique') :-
-%     yes('Le PC affiche un écran noir après le démarrage'),
-%     yes('Le son est déformé ou coupé').
-
-diagnostic('Problème de gestion de la batterie') :-
-    yes('La batterie se décharge trop rapidement'),
-    yes('Le ventilateur fait un bruit fort'),
-    yes('L\'ordinateur surchauffe après une utilisation prolongée').
-
-% diagnostic('Problème de lecteur de CD/DVD') :-
-%     yes('Le PC ne détecte pas le lecteur de CD/DVD').
-
-diagnostic('Problème de mémoire cache') :-
-    yes('Des fichiers sont corrompus ou manquants'),
-    yes('Des applications se bloquent sans raison').
-
-diagnostic('Problème de processus en arrière-plan') :-
-    yes('Le PC est lent au démarrage'),
-    yes('Les fenêtres se ferment sans raison').
-
-% diagnostic('Problème de périphérique Bluetooth') :-
-%     yes('Le lecteur USB ne fonctionne pas'),
-%     yes('L\'interface tactile ne répond pas').
-
-diagnostic('Problème de connectivité réseau sans fil') :-
-    yes('Le Wi-Fi est lent ou instable'),
-    yes('La connexion Internet se coupe fréquemment'),
-    yes('Le PC ne peut pas se connecter à un réseau Wi-Fi').
-
-diagnostic('Problème d\'initialisation du disque dur') :-
-    yes('Le disque dur ne répond pas'),
-    yes('Des fichiers sont corrompus ou manquants').
-
-diagnostic('Problème de stockage saturé') :-
-    yes('Des fichiers sont corrompus ou manquants'),
-    yes('Le PC est lent au démarrage').
-
-diagnostic('Problème de partition de disque') :-
-    yes('Des fichiers sont corrompus ou manquants'),
-    yes('Le disque dur ne répond pas').
-
-diagnostic('Problème de synchronisation de fichiers') :-
-    yes('Les fenêtres se ferment sans raison'),
-    yes('Le PC s\'éteint sans préavis').
-
-diagnostic('Problème d\'antivirus mal configuré') :-
-    yes('Le PC est lent au démarrage'),
-    yes('Des applications se bloquent sans raison').
-
-diagnostic('Problème de disque dur SSD') :-
-    yes('Des fichiers sont corrompus ou manquants'),
-    yes('Le PC s\'éteint sans préavis').
-
-diagnostic('Problème de serveur DNS') :-
-    yes('Le Wi-Fi est lent ou instable'),
-    yes('La connexion Internet se coupe fréquemment').
-
-% diagnostic('Problème de pilote de carte son') :-
-%     yes('Le son est déformé ou coupé'),
-%     yes('Le PC est lent au démarrage').
-
-diagnostic('Problème de serveur de messagerie') :-
-    yes('Les fenêtres se ferment sans raison'),
-    yes('Le PC ne peut pas se connecter à un réseau Wi-Fi').
-
-% diagnostic('Problème de mise à jour du système d\'exploitation') :-
-%     yes('Des fenêtres de mise à jour apparaissent constamment'),
-%     yes('L\'ordinateur surchauffe après une utilisation prolongée').
-
-% Aucun problème détecté
-diagnostic('Aucun problème détecté') :-
-    \+ yes(_).
 
 % Explications pour chaque problème
 explication('Problème de compatibilité matérielle', 'Le matériel installé n\'est pas compatible avec le système d\'exploitation ou les autres composants.').
@@ -202,7 +108,6 @@ solution('Problème de mise à jour du système d\'exploitation', 'Redémarrez l
 
 
 % % Base de données pour associer une question à une image
-% image_pour_question('PC ne démarre pas', pc_ne_demarre_pas).
 image_pour_question('Le PC fait des bips au démarrage', bips_demarrage).
 image_pour_question('Les fenêtres se ferment sans raison', fenetres_fermeture).
 image_pour_question('Le PC ne détecte pas le lecteur de CD/DVD', lecteur_cd_non_detecte).
